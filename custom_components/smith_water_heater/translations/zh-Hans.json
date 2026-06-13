@@ -3,6 +3,35 @@
     "step": {
       "user": {
         "title": "设置史密斯热水器",
+        "description": "选择登录方式。",
+        "data": {
+          "login_method": "登录方式"
+        }
+      },
+      "phone": {
+        "title": "手机号登录",
+        "description": "输入注册 AI-LiNK 应用的手机号码，将发送短信验证码。\n\n如果需要完成验证码，请在浏览器中打开：\n{captcha_url}",
+        "data": {
+          "mobile": "手机号码"
+        }
+      },
+      "captcha": {
+        "title": "完成安全验证",
+        "description": "短信发送需要完成安全验证。\n\n请在浏览器中打开验证码页面，完成验证后将显示的 ticket 和 randstr 粘贴到下方。",
+        "data": {
+          "ticket": "Ticket",
+          "randstr": "Randstr"
+        }
+      },
+      "sms_code": {
+        "title": "输入验证码",
+        "description": "输入手机收到的 6 位短信验证码。",
+        "data": {
+          "captcha": "验证码"
+        }
+      },
+      "legacy": {
+        "title": "手动输入会话 JSON",
         "description": "粘贴从 Al-Link 应用抓取的会话 JSON。\n\nJSON 应包含：auth_token（或 token）、user_id（或 userId）、family_id（或 familyId）、family_uk（或 familyUk）。",
         "data": {
           "session_json": "会话 JSON",
@@ -12,8 +41,9 @@
     },
     "error": {
       "cannot_connect": "无法连接到史密斯 API，请检查网络连接。",
-      "invalid_auth": "认证失败，请从 Al-Link 应用重新抓取会话令牌。",
+      "invalid_auth": "验证码错误或已过期，请重新获取。",
       "invalid_json": "JSON 格式无效，请粘贴从 Al-Link 应用抓取的会话数据。",
+      "captcha_failed": "验证码验证失败，请重新完成验证。",
       "unknown": "发生未知错误。"
     },
     "abort": {

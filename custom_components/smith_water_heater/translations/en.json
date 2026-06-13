@@ -3,7 +3,36 @@
     "step": {
       "user": {
         "title": "Set up Smith Water Heater",
-        "description": "Paste your session JSON captured from the Al-Link app.\n\nThe JSON should contain: auth_token (or token), user_id (or userId), family_id (or familyId), family_uk (or familyUk).",
+        "description": "Choose a login method.",
+        "data": {
+          "login_method": "Login method"
+        }
+      },
+      "phone": {
+        "title": "Phone Login",
+        "description": "Enter the phone number registered with the AI-LiNK app. An SMS verification code will be sent.\n\nIf CAPTCHA verification is required, open this URL in your browser:\n{captcha_url}",
+        "data": {
+          "mobile": "Phone Number"
+        }
+      },
+      "captcha": {
+        "title": "Complete Security Verification",
+        "description": "Sending SMS requires security verification.\n\nOpen the CAPTCHA page in your browser, complete the verification, then paste the displayed ticket and randstr below.",
+        "data": {
+          "ticket": "Ticket",
+          "randstr": "Randstr"
+        }
+      },
+      "sms_code": {
+        "title": "Enter Verification Code",
+        "description": "Enter the 6-digit SMS verification code sent to your phone.",
+        "data": {
+          "captcha": "Verification Code"
+        }
+      },
+      "legacy": {
+        "title": "Paste Session JSON",
+        "description": "Paste the session JSON captured from the Al-Link app.\n\nThe JSON should contain: auth_token (or token), user_id (or userId), family_id (or familyId), family_uk (or familyUk).",
         "data": {
           "session_json": "Session JSON",
           "scan_interval": "Scan interval (seconds)"
@@ -12,8 +41,9 @@
     },
     "error": {
       "cannot_connect": "Failed to connect to the Smith API. Check your network connection.",
-      "invalid_auth": "Authentication failed. Please capture a new session token from the Al-Link app.",
+      "invalid_auth": "Invalid or expired verification code. Please request a new one.",
       "invalid_json": "Invalid JSON format. Please paste the session data captured from the Al-Link app.",
+      "captcha_failed": "CAPTCHA verification failed. Please try again.",
       "unknown": "An unexpected error occurred."
     },
     "abort": {

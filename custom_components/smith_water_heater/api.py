@@ -15,8 +15,12 @@ import aiohttp
 
 from .const import (
     API_GET_HOMEPAGE,
+    API_GET_INFO,
+    API_GET_USER_ID,
     API_INVOKE_METHOD,
+    API_LOGIN,
     API_REFRESH_TOKEN,
+    API_SEND_SMS,
     BASE_URL,
     ENCODE_KEY,
     SECRET_KEY,
@@ -313,6 +317,156 @@ class SmithApiClient:
             result.append(device)
 
         return result
+
+    # --- Login methods (unauthenticated) ---
+
+    def _build_headers_login(self) -> dict[str, str]:
+        """Build headers for unauthenticated login requests."""
+        millis = str(int(time.time() * 1000))
+        rand4 = str(uuid.uuid4().int % 100000).zfill(5)
+        trace_id = f"{millis}-{rand4}--{ANDROID_TAG}"
+
+        headers = {
+            "traceId": trace_id,
+            "Authorization": "",
+            "Content-Type": "application/json;charset=UTF-8",
+            "userId": "",
+            "familyId": "",
+            "version": "V1.0.1",
+            "source": "Android",
+            "familyUk": "",
+        }
+        anti_replay = _compute_anti_replay({})
+        headers.update(anti_replay)
+        return headers
+
+    async def _login_request(
+        self, endpoint: str, body_json: dict[str, Any], with_auth: bool = False
+    ) -> tuple[dict[str, Any], int]:
+        """Make a login-phase request. If with_auth, include Authorization header."""
+        url = f"{BASE_URL}/{endpoint}"
+        headers = self._build_headers_login()
+        if with_auth:
+            headers["Authorization"] = self._session_data.auth_token
+            headers["userId"] = self._session_data.user_id
+
+        relay_body = dict(body_json)
+        relay_body["encode"] = _compute_encode(body_json)
+        relay_body = dict(sorted(relay_body.items()))
+
+        try:
+            async with self._session.post(
+                url, json=relay_body, headers=headers, timeout=aiohttp.ClientTimeout(total=15)
+            ) as resp:
+                # Capture token from response if present
+                auth_header = resp.headers.get("Authorization", "")
+                if auth_header.startswith("Bearer "):
+                    self._session_data.auth_token = auth_header
+
+                data = await resp.json()
+                return data, resp.status
+        except aiohttp.ClientError as err:
+            raise SmithApiConnectionError(f"Connection error: {err}") from err
+        except TimeoutError as err:
+            raise SmithApiConnectionError(f"Timeout: {err}") from err
+
+    async def async_send_sms(
+        self, mobile: str, ticket: str = "", randstr: str = ""
+    ) -> bool:
+        """Send SMS verification code. Returns True on success."""
+        body = {
+            "mobile": mobile,
+            "ticket": ticket,
+            "randstr": randstr,
+            "type": "1",
+        }
+        data, status = await self._login_request(API_SEND_SMS, body)
+        if status != 200:
+            raise SmithApiConnectionError(f"SMS request failed: status={status}")
+        # Server returns {} on success, or error info on failure
+        if data.get("status") and data["status"] != 200:
+            raise SmithApiError(f"SMS error: {data.get('info', data)}")
+        return True
+
+    async def async_login(self, mobile: str, captcha: str) -> str:
+        """Login with phone + SMS code. Returns the JWT token."""
+        body = {
+            "adCode": "",
+            "address": "",
+            "captcha": captcha,
+            "city": "",
+            "country": "",
+            "district": "",
+            "latitude": "",
+            "longitude": "",
+            "mobile": mobile,
+            "province": "",
+            "street": "",
+            "streetNum": "",
+        }
+        data, status = await self._login_request(API_LOGIN, body)
+        if status != 200:
+            raise SmithApiConnectionError(f"Login failed: status={status}")
+        if data.get("status") != 200:
+            raise SmithApiAuthError(f"Login error: {data.get('info', data)}")
+
+        token = self._session_data.auth_token
+        if not token:
+            raise SmithApiAuthError("No token received from login response")
+
+        # Extract userId from JWT payload for subsequent requests
+        raw_token = token[7:] if token.startswith("Bearer ") else token
+        parts = raw_token.split(".")
+        if len(parts) >= 2:
+            payload_b64 = parts[1]
+            padding = 4 - len(payload_b64) % 4
+            if padding != 4:
+                payload_b64 += "=" * padding
+            payload = json.loads(base64.urlsafe_b64decode(payload_b64))
+            self._session_data.user_id = payload.get("username", "")
+            self._session_data.mobile = mobile
+
+        return token
+
+    async def async_get_user_id(self, mobile: str) -> str:
+        """Get userId from phone number. Must be called after login."""
+        body = {"mobile": mobile}
+        data, status = await self._login_request(API_GET_USER_ID, body, with_auth=True)
+        if status != 200:
+            raise SmithApiConnectionError(f"getUserId failed: status={status}")
+        if data.get("status") != 200:
+            raise SmithApiError(f"getUserId error: {data}")
+
+        user_id = data.get("info", {}).get("userId", "")
+        if not user_id:
+            # Fallback: extract from JWT token
+            token = self._session_data.auth_token
+            if token.startswith("Bearer "):
+                token = token[7:]
+            payload_b64 = token.split(".")[1] if "." in token else ""
+            if payload_b64:
+                padding = 4 - len(payload_b64) % 4
+                if padding != 4:
+                    payload_b64 += "=" * padding
+                payload = json.loads(base64.urlsafe_b64decode(payload_b64))
+                user_id = payload.get("username", "")
+        return user_id
+
+    async def async_get_family_info(self, user_id: str) -> tuple[str, str]:
+        """Get familyId and familyUk from userId. Returns (family_id, family_uk)."""
+        body = {"userId": user_id}
+        data, status = await self._login_request(API_GET_INFO, body, with_auth=True)
+        if status != 200:
+            raise SmithApiConnectionError(f"getInfo failed: status={status}")
+        if data.get("status") != 200:
+            raise SmithApiError(f"getInfo error: {data}")
+
+        info = data.get("info", {})
+        family_id = info.get("familyId", "")
+        family_uk = info.get("familyUk", "")
+        if not family_id:
+            raise SmithApiError("No familyId in getInfo response")
+        return family_id, family_uk
 
 
 def parse_session_payload(raw: str) -> SmithSessionData | None:

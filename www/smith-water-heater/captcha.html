@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI-LiNK 安全验证</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #f5f5f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+  }
+  .card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    padding: 32px;
+    max-width: 420px;
+    width: 100%;
+  }
+  h1 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+  }
+  .desc {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+  .steps {
+    font-size: 13px;
+    color: #555;
+    margin-bottom: 24px;
+    padding-left: 20px;
+  }
+  .steps li { margin-bottom: 6px; }
+  .btn {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background: #4caf50;
+    color: white;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn:hover { background: #43a047; }
+  .btn:disabled { background: #ccc; cursor: not-allowed; }
+  .result {
+    display: none;
+    margin-top: 24px;
+    padding: 16px;
+    background: #f0f7f0;
+    border-radius: 8px;
+    border: 1px solid #c8e6c9;
+  }
+  .result.show { display: block; }
+  .result h2 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2e7d32;
+    margin-bottom: 12px;
+  }
+  .field {
+    margin-bottom: 12px;
+  }
+  .field label {
+    display: block;
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 4px;
+  }
+  .field input {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: monospace;
+    background: #fafafa;
+  }
+  .field input:focus {
+    outline: none;
+    border-color: #4caf50;
+    background: white;
+  }
+  .copy-btn {
+    display: inline-block;
+    padding: 4px 12px;
+    border: 1px solid #4caf50;
+    border-radius: 4px;
+    background: white;
+    color: #4caf50;
+    font-size: 12px;
+    cursor: pointer;
+    margin-top: 4px;
+  }
+  .copy-btn:hover { background: #f0f7f0; }
+  .note {
+    margin-top: 16px;
+    font-size: 12px;
+    color: #999;
+    line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h1>AI-LiNK 安全验证</h1>
+  <p class="desc">用于史密斯热水器 Home Assistant 集成的登录验证。</p>
+
+  <ol class="steps">
+    <li>点击下方"开始验证"按钮</li>
+    <li>完成拖拽拼图验证</li>
+    <li>将显示的 Ticket 和 Randstr 复制到 HA 配置页面</li>
+  </ol>
+
+  <button class="btn" id="startBtn" onclick="startCaptcha()">开始验证</button>
+
+  <div class="result" id="result">
+    <h2>验证成功！请复制以下内容到 HA：</h2>
+    <div class="field">
+      <label>Ticket</label>
+      <input type="text" id="ticketVal" readonly onclick="this.select()">
+    </div>
+    <div class="field">
+      <label>Randstr</label>
+      <input type="text" id="randstrVal" readonly onclick="this.select()">
+    </div>
+    <button class="copy-btn" onclick="copyBoth()">复制全部</button>
+  </div>
+
+  <p class="note">
+    验证完成后，将 Ticket 和 Randstr 粘贴到 Home Assistant 集成配置中的"完成安全验证"步骤。
+  </p>
+</div>
+
+<script src="https://turing.captcha.qcloud.com/TCaptcha.js"></script>
+<script>
+function startCaptcha() {
+  var btn = document.getElementById('startBtn');
+  btn.disabled = true;
+  btn.textContent = '验证中...';
+
+  var captcha = new TencentCaptcha('199886438', function(res) {
+    btn.disabled = false;
+    btn.textContent = '重新验证';
+
+    if (res.ret === 0) {
+      document.getElementById('ticketVal').value = res.ticket;
+      document.getElementById('randstrVal').value = res.randstr;
+      document.getElementById('result').classList.add('show');
+    } else {
+      alert('验证已取消，请重试。');
+    }
+  });
+  captcha.show();
+}
+
+function copyBoth() {
+  var ticket = document.getElementById('ticketVal').value;
+  var randstr = document.getElementById('randstrVal').value;
+  var text = 'Ticket: ' + ticket + '\nRandstr: ' + randstr;
+  navigator.clipboard.writeText(text).then(function() {
+    alert('已复制到剪贴板！');
+  });
+}
+</script>
+</body>
+</html>

@@ -11,6 +11,10 @@ BASE_URL = "https://ailink-api.hotwater.com.cn/AiLinkService"
 API_GET_HOMEPAGE = "appDevice/getHomepageV2"
 API_INVOKE_METHOD = "device/invokeMethod"
 API_REFRESH_TOKEN = "api/getLastToken"
+API_SEND_SMS = "user/getTXCaptcha"
+API_LOGIN = "user/login"
+API_GET_USER_ID = "user/getUserIdFromIT"
+API_GET_INFO = "user/getInfo"
 
 # Polling
 DEFAULT_SCAN_INTERVAL = 60  # seconds
@@ -20,6 +24,9 @@ MAX_SCAN_INTERVAL = 600
 # Anti-replay crypto keys
 SECRET_KEY = "ng957stzh4zy3dts"
 ENCODE_KEY = "AILink_2021#"
+
+# Tencent CAPTCHA
+TCAPTCHA_APP_ID = "199886438"
 
 # Config
 CONF_AUTH_TOKEN = "auth_token"
