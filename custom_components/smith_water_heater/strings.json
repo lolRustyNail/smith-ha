@@ -1,0 +1,23 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Set up Smith Water Heater",
+        "description": "Paste your session JSON captured from the Al-Link app.\n\nThe JSON should contain: auth_token (or token), user_id (or userId), family_id (or familyId), family_uk (or familyUk).",
+        "data": {
+          "session_json": "Session JSON",
+          "scan_interval": "Scan interval (seconds)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to the Smith API. Check your network connection.",
+      "invalid_auth": "Authentication failed. Please capture a new session token from the Al-Link app.",
+      "invalid_json": "Invalid JSON format. Please paste the session data captured from the Al-Link app.",
+      "unknown": "An unexpected error occurred."
+    },
+    "abort": {
+      "already_configured": "This account is already configured."
+    }
+  }
+}

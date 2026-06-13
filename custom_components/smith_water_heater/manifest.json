@@ -1,0 +1,12 @@
+{
+  "domain": "smith_water_heater",
+  "name": "Smith Water Heater (A.O. Smith / AI-LiNK)",
+  "config_flow": true,
+  "iot_class": "cloud_polling",
+  "version": "1.0.0",
+  "requirements": [],
+  "codeowners": ["@lolRustyNail"],
+  "documentation": "https://github.com/lolRustyNail/smith-ha",
+  "dependencies": [],
+  "integration_type": "hub"
+}

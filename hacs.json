@@ -1,0 +1,6 @@
+{
+  "name": "Smith Water Heater (A.O. Smith / AI-LiNK)",
+  "homeassistant": "2024.1.0",
+  "render_readme": true,
+  "country": ["CN"]
+}

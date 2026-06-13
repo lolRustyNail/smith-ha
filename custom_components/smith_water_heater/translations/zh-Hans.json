@@ -1,0 +1,23 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "设置史密斯热水器",
+        "description": "粘贴从 Al-Link 应用抓取的会话 JSON。\n\nJSON 应包含：auth_token（或 token）、user_id（或 userId）、family_id（或 familyId）、family_uk（或 familyUk）。",
+        "data": {
+          "session_json": "会话 JSON",
+          "scan_interval": "轮询间隔（秒）"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "无法连接到史密斯 API，请检查网络连接。",
+      "invalid_auth": "认证失败，请从 Al-Link 应用重新抓取会话令牌。",
+      "invalid_json": "JSON 格式无效，请粘贴从 Al-Link 应用抓取的会话数据。",
+      "unknown": "发生未知错误。"
+    },
+    "abort": {
+      "already_configured": "该账户已配置。"
+    }
+  }
+}
