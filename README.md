@@ -1,5 +1,7 @@
 # Smith Water Heater (A.O. Smith / AI-LiNK)
 
+English | [中文](README_zh.md)
+
 Home Assistant integration for A.O. Smith electric water heaters controlled via the AI-LiNK / Al-Link app (China).
 
 ## Features
