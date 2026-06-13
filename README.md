@@ -28,26 +28,39 @@ Home Assistant integration for A.O. Smith electric water heaters controlled via 
 
 ## Configuration
 
-### Get Session Data
+### Phone Login (Recommended)
 
-You need to capture the AI-LiNK app's API traffic to obtain your session token:
+1. Go to **Settings** > **Devices & Services** > **Add Integration**
+2. Search for **Smith Water Heater**
+3. Select **手机号登录** (Phone Login)
+4. Enter your phone number registered with the AI-LiNK app
+5. If CAPTCHA verification is required, open the displayed URL in your browser and complete the puzzle
+6. Enter the 6-digit SMS verification code received on your phone
+7. Done! The integration will automatically obtain all session data
 
-1. Install [mitmproxy](https://mitmproxy.org/) on your PC
+### Legacy: Manual Session Data
+
+If phone login doesn't work, you can still paste session JSON manually:
+
+1. Capture API traffic using [mitmproxy](https://mitmproxy.org/) (see below)
+2. Select **粘贴会话 JSON** (Paste Session JSON) in the integration setup
+3. Paste the JSON containing: `auth_token`, `user_id`, `family_id`, `family_uk`
+
+<details>
+<summary>How to capture session data via mitmproxy</summary>
+
+1. Install mitmproxy on your PC
 2. Set up a MUMU/Android emulator with the proxy
 3. Install the mitmproxy CA certificate in the emulator
 4. Open the AI-LiNK app and log in
-5. Capture the `getHomepageV2` request headers - look for the `Authorization: Bearer <token>` header
+5. Capture the `getHomepageV2` request headers - look for `Authorization: Bearer <token>`
 6. Extract the session JSON with these fields:
    - `auth_token` - JWT Bearer token
    - `user_id` - Your user ID
    - `family_id` - Your family/home ID
    - `family_uk` - Your family unique key
 
-### Add Integration
-
-1. Go to **Settings** > **Devices & Services** > **Add Integration**
-2. Search for **Smith Water Heater**
-3. Paste the session JSON
+</details>
 
 ## CircleTimer Lovelace Card
 

@@ -28,11 +28,28 @@
 
 ## 配置
 
-### 获取会话数据
+### 手机号登录（推荐）
 
-需要抓取 AI-LiNK 应用的 API 流量来获取会话令牌：
+1. 进入 **设置** > **设备与服务** > **添加集成**
+2. 搜索 **Smith Water Heater**
+3. 选择 **手机号登录**
+4. 输入注册 AI-LiNK 应用的手机号码
+5. 如果需要完成安全验证，在浏览器中打开提示的链接，完成拼图验证
+6. 输入手机收到的 6 位短信验证码
+7. 完成！集成将自动获取所有会话信息
 
-1. 在电脑上安装 [mitmproxy](https://mitmproxy.org/)
+### 备选：手动粘贴会话 JSON
+
+如果手机号登录不可用，仍然可以手动粘贴会话数据：
+
+1. 使用 [mitmproxy](https://mitmproxy.org/) 抓取 API 流量（见下方说明）
+2. 在集成设置中选择 **粘贴会话 JSON**
+3. 粘贴包含 `auth_token`、`user_id`、`family_id`、`family_uk` 的 JSON
+
+<details>
+<summary>如何通过 mitmproxy 抓取会话数据</summary>
+
+1. 在电脑上安装 mitmproxy
 2. 在 MUMU 模拟器中配置代理指向 mitmproxy
 3. 在模拟器中安装 mitmproxy 的 CA 证书
 4. 打开 AI-LiNK 应用并登录
@@ -43,14 +60,7 @@
    - `family_id` - 家庭 ID
    - `family_uk` - 家庭唯一标识
 
-### 添加集成
-
-1. 进入 **设置** > **设备与服务** > **添加集成**
-2. 搜索 **Smith Water Heater**
-3. 粘贴会话 JSON
-
-### 会话 JSON 格式示例
-
+会话 JSON 格式示例：
 ```json
 {
   "auth_token": "eyJhbGciOi...",
@@ -59,6 +69,8 @@
   "family_uk": "abcdef12"
 }
 ```
+
+</details>
 
 ## 预约加热圆形卡片
 
